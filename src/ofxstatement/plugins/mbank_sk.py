@@ -65,6 +65,10 @@ class MBankSKParser(CsvStatementParser):
         if not self.statement.account_id \
            and re.match(r"^#..slo ..tu:", self.last_line):
             self.statement.account_id = line[0]
+        if not self.statement.start_date \
+           and re.match(r"^#Za obdobie:", self.last_line):
+            self.statement.start_date = datetime.datetime.strptime(line[0], "%d.%m.%Y").replace(tzinfo=timezone(timedelta(hours=1)))
+            self.statement.end_date = datetime.datetime.strptime(line[1], "%d.%m.%Y").replace(hour=23, minute=59, second=59, tzinfo=timezone(timedelta(hours=1)))
         self.last_line = line[0]
         if len(line) > 10:
             md1 = re.match(r"^\d{2}-\d{2}-\d{4}$", line[0])
