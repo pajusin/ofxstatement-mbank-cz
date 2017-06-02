@@ -79,7 +79,7 @@ class MBankSKParser(CsvStatementParser):
                 if len(stmt_line.date_user):
                     stmt_line.date_user = datetime.datetime.strptime(line[0], self.date_format)
                 if line[2] == "PLATBA KARTOU":
-                    stmt_line.trn_type = "DEBIT"
+                    stmt_line.trn_type = "PAYMENT"
                 elif line[2] == u"VÝBER V BANKOMATE":
                     stmt_line.trn_type = "ATM"
                 else:
