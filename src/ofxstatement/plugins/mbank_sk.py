@@ -6,7 +6,7 @@
 
 from ofxstatement.plugin import Plugin
 from ofxstatement.parser import StatementParser, CsvStatementParser
-from ofxstatement.statement import StatementLine, Statement
+from ofxstatement.statement import StatementLine, Statement, BankAccount
 
 import csv, re, datetime
 from datetime import timezone, timedelta
@@ -96,6 +96,10 @@ class MBankSKParser(CsvStatementParser):
                     stmt_line.refnum = stmt_line.refnum + "/SS" + line[8]
                 if len(line[6]):
                     stmt_line.refnum = stmt_line.refnum + "/KS" + line[6]
+                if len(line[5]):
+                    stmt_line.bank_account_to = BankAccount("", re.sub("[ ']", "", line[5]))
+                else:
+                    stmt_line.bank_account_to = None
 
                 if len(stmt_line.date_user):
                     stmt_line.date_user = datetime.datetime.strptime(line[0], self.date_format).replace(tzinfo=timezone(timedelta(hours=1)))
