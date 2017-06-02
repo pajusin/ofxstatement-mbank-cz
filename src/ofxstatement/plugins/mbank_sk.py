@@ -80,8 +80,8 @@ class MBankSKParser(CsvStatementParser):
                     stmt_line.date_user = datetime.datetime.strptime(line[0], self.date_format)
                 if line[2] == "PLATBA KARTOU":
                     stmt_line.trn_type = "DEBIT"
-                elif line[2] == u"MEDZIBANKOVÝ PREVOD":
-                    stmt_line.trn_type = "XFER"
                 elif line[2] == u"VÝBER V BANKOMATE":
                     stmt_line.trn_type = "ATM"
+                else:
+                    stmt_line.trn_type = "XFER"
                 return stmt_line
