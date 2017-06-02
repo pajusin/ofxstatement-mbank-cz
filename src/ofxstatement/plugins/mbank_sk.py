@@ -69,6 +69,14 @@ class MBankSKParser(CsvStatementParser):
            and re.match(r"^#Za obdobie:", self.last_line):
             self.statement.start_date = datetime.datetime.strptime(line[0], "%d.%m.%Y").replace(tzinfo=timezone(timedelta(hours=1)))
             self.statement.end_date = datetime.datetime.strptime(line[1], "%d.%m.%Y").replace(hour=23, minute=59, second=59, tzinfo=timezone(timedelta(hours=1)))
+        if not self.statement.start_balance \
+           and len(line) > 6 \
+           and re.match(r"^#Po.iato.n. zostatok:", line[6]):
+            self.statement.start_balance = self.parse_float(re.sub("[ .a-zA-Z]", "", line[7]).replace(",", "."))
+        if not self.statement.end_balance \
+           and len(line) > 6 \
+           and re.match(r"^#Kone.n. zostatok:", line[6]):
+            self.statement.end_balance = self.parse_float(re.sub("[ .a-zA-Z]", "", line[7]).replace(",", "."))
         self.last_line = line[0]
         if len(line) > 10:
             md1 = re.match(r"^\d{2}-\d{2}-\d{4}$", line[0])
