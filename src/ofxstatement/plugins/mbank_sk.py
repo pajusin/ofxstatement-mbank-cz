@@ -24,7 +24,7 @@ class MBankSKParser(CsvStatementParser):
     Parsing CSV file
     """
     mappings = {"date_user":0, "date": 1,
-                "payee":2, #"id": 2,
+                "payee":4, #"id": 2,
                 "memo": 3, "amount": 9, }
     encoding = 'windows-1250' # 'utf-8'
     date_format = "%d-%m-%Y"
