@@ -9,7 +9,7 @@ from ofxstatement.parser import StatementParser, CsvStatementParser
 from ofxstatement.statement import StatementLine, Statement
 
 import csv, re, datetime
-
+from datetime import timezone, timedelta
 
 class MBankSKPlugin(Plugin):
     """MBank.SK plugin (for developers only)
@@ -77,7 +77,8 @@ class MBankSKParser(CsvStatementParser):
                 # let super CSV parserd with mappings do this job instead
                 stmt_line = super(MBankSKParser, self).parse_record(line)
                 if len(stmt_line.date_user):
-                    stmt_line.date_user = datetime.datetime.strptime(line[0], self.date_format)
+                    stmt_line.date_user = datetime.datetime.strptime(line[0], self.date_format).replace(tzinfo=timezone(timedelta(hours=1)))
+                stmt_line.date = stmt_line.date.replace(tzinfo=timezone(timedelta(hours=1)))
                 if line[2] == "PLATBA KARTOU":
                     stmt_line.trn_type = "PAYMENT"
                     payee = line[3].split('/')
