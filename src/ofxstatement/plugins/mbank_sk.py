@@ -88,6 +88,15 @@ class MBankSKParser(CsvStatementParser):
                                        mx_date.group(1)])
                 # let super CSV parserd with mappings do this job instead
                 stmt_line = super(MBankSKParser, self).parse_record(line)
+
+                stmt_line.refnum = ""
+                if len(line[7]):
+                    stmt_line.refnum = stmt_line.refnum + "/VS" + line[7]
+                if len(line[8]):
+                    stmt_line.refnum = stmt_line.refnum + "/SS" + line[8]
+                if len(line[6]):
+                    stmt_line.refnum = stmt_line.refnum + "/KS" + line[6]
+
                 if len(stmt_line.date_user):
                     stmt_line.date_user = datetime.datetime.strptime(line[0], self.date_format).replace(tzinfo=timezone(timedelta(hours=1)))
                 stmt_line.date = stmt_line.date.replace(tzinfo=timezone(timedelta(hours=1)))
