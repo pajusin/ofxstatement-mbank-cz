@@ -82,6 +82,8 @@ class MBankSKParser(CsvStatementParser):
                     stmt_line.trn_type = "PAYMENT"
                 elif line[2] == u"VÝBER V BANKOMATE":
                     stmt_line.trn_type = "ATM"
+                elif line[2] == u"INKASO":
+                    stmt_line.trn_type = "DIRECTDEBIT"
                 else:
                     stmt_line.trn_type = "XFER"
                 return stmt_line
