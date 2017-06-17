@@ -6,10 +6,10 @@
 
 from ofxstatement.plugin import Plugin
 from ofxstatement.parser import StatementParser, CsvStatementParser
-from ofxstatement.statement import StatementLine, Statement
+from ofxstatement.statement import StatementLine, Statement, BankAccount
 
 import csv, re, datetime
-
+from datetime import timezone, timedelta
 
 class MBankSKPlugin(Plugin):
     """MBank.SK plugin (for developers only)
@@ -24,7 +24,7 @@ class MBankSKParser(CsvStatementParser):
     Parsing CSV file
     """
     mappings = {"date_user":0, "date": 1,
-                "payee":2, #"id": 2,
+                "payee":4, #"id": 2,
                 "memo": 3, "amount": 9, }
     encoding = 'windows-1250' # 'utf-8'
     date_format = "%d-%m-%Y"
@@ -65,6 +65,18 @@ class MBankSKParser(CsvStatementParser):
         if not self.statement.account_id \
            and re.match(r"^#..slo ..tu:", self.last_line):
             self.statement.account_id = line[0]
+        if not self.statement.start_date \
+           and re.match(r"^#Za obdobie:", self.last_line):
+            self.statement.start_date = datetime.datetime.strptime(line[0], "%d.%m.%Y").replace(tzinfo=timezone(timedelta(hours=1)))
+            self.statement.end_date = datetime.datetime.strptime(line[1], "%d.%m.%Y").replace(hour=23, minute=59, second=59, tzinfo=timezone(timedelta(hours=1)))
+        if not self.statement.start_balance \
+           and len(line) > 6 \
+           and re.match(r"^#Po.iato.n. zostatok:", line[6]):
+            self.statement.start_balance = self.parse_float(re.sub("[ .a-zA-Z]", "", line[7]).replace(",", "."))
+        if not self.statement.end_balance \
+           and len(line) > 6 \
+           and re.match(r"^#Kone.n. zostatok:", line[6]):
+            self.statement.end_balance = self.parse_float(re.sub("[ .a-zA-Z]", "", line[7]).replace(",", "."))
         self.last_line = line[0]
         if len(line) > 10:
             md1 = re.match(r"^\d{2}-\d{2}-\d{4}$", line[0])
@@ -76,12 +88,31 @@ class MBankSKParser(CsvStatementParser):
                                        mx_date.group(1)])
                 # let super CSV parserd with mappings do this job instead
                 stmt_line = super(MBankSKParser, self).parse_record(line)
+
+                stmt_line.refnum = ""
+                if len(line[7]):
+                    stmt_line.refnum = stmt_line.refnum + "/VS" + line[7]
+                if len(line[8]):
+                    stmt_line.refnum = stmt_line.refnum + "/SS" + line[8]
+                if len(line[6]):
+                    stmt_line.refnum = stmt_line.refnum + "/KS" + line[6]
+                if len(line[5]):
+                    stmt_line.bank_account_to = BankAccount("", re.sub("[ ']", "", line[5]))
+                else:
+                    stmt_line.bank_account_to = None
+
                 if len(stmt_line.date_user):
-                    stmt_line.date_user = datetime.datetime.strptime(line[0], self.date_format)
+                    stmt_line.date_user = datetime.datetime.strptime(line[0], self.date_format).replace(tzinfo=timezone(timedelta(hours=1)))
+                stmt_line.date = stmt_line.date.replace(tzinfo=timezone(timedelta(hours=1)))
                 if line[2] == "PLATBA KARTOU":
-                    stmt_line.trn_type = "DEBIT"
-                elif line[2] == u"MEDZIBANKOVÝ PREVOD":
-                    stmt_line.trn_type = "XFER"
+                    stmt_line.trn_type = "PAYMENT"
+                    payee = line[3].split('/')
+                    if len(payee) > 0:
+                        stmt_line.payee = payee[0].strip()
                 elif line[2] == u"VÝBER V BANKOMATE":
                     stmt_line.trn_type = "ATM"
+                elif line[2] == u"INKASO":
+                    stmt_line.trn_type = "DIRECTDEBIT"
+                else:
+                    stmt_line.trn_type = "XFER"
                 return stmt_line
