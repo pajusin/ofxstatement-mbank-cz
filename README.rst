@@ -1,5 +1,5 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-MBank.sk plugin for ofxstatement
+MBank.cz plugin for ofxstatement
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-CSV import plugin for MBank.sk
+CSV import plugin for MBank.cz
