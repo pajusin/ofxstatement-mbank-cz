@@ -7,4 +7,4 @@ PYTHON: setup.py
 	$(PYTHON) setup.py develop
 
 test:
-	@ofxstatement convert -t mbank.sk mKonto_01627828_900501_150612.csv  mbank-sk.ofx
+	@ofxstatement convert -t mbank.cz m.csv  mbank-cz.ofx

@@ -9,12 +9,12 @@ version = "0.0.1"
 with open('README.rst') as f:
     long_description = f.read()
 
-setup(name='ofxstatement-mbank.sk',
+setup(name='ofxstatement-mbank.cz',
       version=version,
       author="Andrey Lebedev",
       author_email="andrey@lebedev.lt",
       url="https://github.com/kedder/ofxstatement",
-      description=("MBank.sk plugin for ofxstatement"),
+      description=("MBank.cz plugin for ofxstatement based on MBank.cz plugin"),
       long_description=long_description,
       license="GPLv3",
       keywords=["ofx", "banking", "statement"],
@@ -32,7 +32,7 @@ setup(name='ofxstatement-mbank.sk',
       namespace_packages=["ofxstatement", "ofxstatement.plugins"],
       entry_points={
           'ofxstatement':
-          ['mbank.sk = ofxstatement.plugins.mbank_sk:MBankSKPlugin']
+          ['mbank.cz = ofxstatement.plugins.mbank_cz:MBankCZPlugin']
           },
       install_requires=['ofxstatement'],
       include_package_data=True,
